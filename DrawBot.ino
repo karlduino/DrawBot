@@ -8,7 +8,7 @@
 #include <Adafruit_MCP23017.h>
 #include <BricktronicsShield.h>
 
-#define MAXSPEED 200
+#define MAXSPEED 170
 #define MINSPEED 60
 
 BricktronicsMotor leftmotor(BricktronicsShield::MOTOR_1);
