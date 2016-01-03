@@ -29,43 +29,39 @@ void setup()
 }
 
 int time=200;
-int speed=MAXSPEED/2;
-int turn_time = 250;
+int speed=150;
+int turn_time = 25;
 bool prev_button_pressed = false;
 bool button_pressed;
 
 void loop()
 {
-  speed += random(-50, 50);
-  if(speed > MAXSPEED) speed = MAXSPEED;
-  if(speed < MINSPEED) speed = MINSPEED;
-
+  speed = limit_value(speed + random(-50, 50), MINSPEED, MAXSPEED);
   forward(random(5, 50), speed);
 
-  time += random(-40, 40);
-  if(time < 0) time = 50;
+  time = limit_value(time + random(-40, 40), 50, 500);
   left(time, speed);
 
-
   forward(random(5, 50), speed);
 
-  if(button.isPressed()) bumpers_hit();
-
-  time += random(-40, 40);
-  if(time < 0) time = 50;
+  time = limit_value(time + random(-40, 40), 50, 500);
   right(time, speed);
-
-  if(button.isPressed()) bumpers_hit();
-
 }
 
 void bumpers_hit()
 {
-  backward(100, MAXSPEED*0.8);
-  if(random(0, 1) < 0.5)
-    right(turn_time, MAXSPEED*0.8);
-  else
-    left(turn_time, MAXSPEED*0.8);
+  rightmotor.setFixedDrive(MAXSPEED*0.8);
+  leftmotor.setFixedDrive(MAXSPEED*0.8);
+  delay(500);
+  if(random(0, 1) < 0.5) {
+    rightmotor.setFixedDrive(MAXSPEED*0.8);
+    leftmotor.setFixedDrive(-MAXSPEED*0.8);
+  }
+  else {
+    rightmotor.setFixedDrive(MAXSPEED*0.8);
+    leftmotor.setFixedDrive(-MAXSPEED*0.8);
+  }
+  delay(1250);
 }
 
 void stop()
@@ -112,9 +108,16 @@ void look_for_button(int amount)
   for(int i=0; i<amount; i++) {
       if(button.isPressed()) {
         bumpers_hit();
-        return();
+        return;
       }
       delay(10);
   }
+}
+
+int limit_value(int number, int low, int high)
+{
+  if(number < low) return low;
+  if(number > high) return high;
+  return number;
 }
 
