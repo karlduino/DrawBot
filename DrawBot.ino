@@ -3,7 +3,6 @@
 #include <Encoder.h>
 #include <PID_v1.h>
 #include <BricktronicsMotor.h>
-#include <BricktronicsButton.h>
 #include <Wire.h>
 #include <Adafruit_MCP23017.h>
 #include <BricktronicsShield.h>
@@ -14,37 +13,11 @@
 BricktronicsMotor leftmotor(BricktronicsShield::MOTOR_1);
 BricktronicsMotor rightmotor(BricktronicsShield::MOTOR_2);
 
-BricktronicsButton button(BricktronicsShield::SENSOR_2);
-
-int time1 = 300, time2 = 40;
-int lspeed1=100, rspeed1 = 140;
-int lspeed2=-140, rspeed2 = 160;
+int time1 = 3000, time2 = 1000;
+int lspeed1=120, rspeed1 = 140;
+int lspeed2=-130, rspeed2 = 150;
 int accel_steps = 20;
-int accel_time = 1;
-bool prev_button_pressed = false;
-bool button_pressed;
-
-void bumpers_hit()
-{
-  rightmotor.setFixedDrive(MAXSPEED*0.8);
-  leftmotor.setFixedDrive(MAXSPEED*0.8);
-  delay(500);
-  if(random(0, 1) < 0.5) {
-    rightmotor.setFixedDrive(MAXSPEED*0.8);
-    leftmotor.setFixedDrive(-MAXSPEED*0.8);
-  }
-  else {
-    rightmotor.setFixedDrive(MAXSPEED*0.8);
-    leftmotor.setFixedDrive(-MAXSPEED*0.8);
-  }
-  delay(1250);
-}
-
-void stop()
-{
-  rightmotor.setFixedDrive(0);
-  leftmotor.setFixedDrive(0);
-}
+int accel_time = 10;
 
 // drive at a fixed speed for a given length of time
 void drive(int left_speed, int right_speed,
@@ -52,7 +25,7 @@ void drive(int left_speed, int right_speed,
 {
     leftmotor.setFixedDrive(left_speed);
     rightmotor.setFixedDrive(right_speed);
-    look_for_button(travel_time);
+    delay(travel_time);
 }
 
 // accelerate from one speed to another in a fixed number of steps
@@ -66,22 +39,10 @@ void accel(int left_start, int right_start,
     for(int i=0; i<steps; i++) {
         leftmotor.setFixedDrive(i*left_step + left_start);
         rightmotor.setFixedDrive(i*right_step + right_start);
-        look_for_button(time_increment);
+        delay(time_increment);
     }
     leftmotor.setFixedDrive(left_end);
     rightmotor.setFixedDrive(right_end);
-}
-
-
-void look_for_button(int amount)
-{
-  for(int i=0; i<amount; i++) {
-      if(button.isPressed()) {
-        bumpers_hit();
-        return;
-      }
-      delay(10);
-  }
 }
 
 
@@ -97,7 +58,6 @@ void setup()
     BricktronicsShield::begin();
     leftmotor.begin();
     rightmotor.begin();
-    button.begin();
 
     // initialize random number generator
     randomSeed(analogRead(A0));
